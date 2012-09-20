@@ -8,7 +8,18 @@ namespace EightQueens.Tests
         [Test]
         public void EightQueens()
         {
-            var puzzle = EightQueensGridBuilder.Build(16);
+            Play(8);
+        }
+
+        [Test]
+        public void SixQueens()
+        {
+            Play(6);
+        }
+
+        private static void Play(int dimension)
+        {
+            var puzzle = EightQueensGridBuilder.Build(dimension);
             new EightQueensSolver().Solve(puzzle);
             EightQueensPuzzleWriter.WriteToConsole(puzzle);
         }
