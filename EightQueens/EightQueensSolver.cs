@@ -6,6 +6,8 @@ namespace EightQueens
 {
     public class EightQueensSolver
     {
+        // Silly, right? Should have used Nullable<bool> instead.
+        // But the code looks really gross with so many HasValue checks!
         private const int Queen = 2;
         private const int NotQueen = 1;
         private const int Unknown = 0;
@@ -38,7 +40,7 @@ namespace EightQueens
                 // Note: If move is valid, we can optimize the recursive Solve() 
                 // by incrementing the index by more than one. 
                 // Instead we could move to the next row, at least.
-                if (IsValidMove(puzzle, puzzle[index]) && Solve(puzzle, index+1) != null)
+                if (IsValidValue(puzzle, puzzle[index]) && Solve(puzzle, index+1) != null)
                 {
                     return puzzle;
                 }
@@ -64,41 +66,28 @@ namespace EightQueens
             return -1;
         }
 
-        public bool IsValidMove(List<GridCell> puzzle, GridCell gridCell)
+        public bool IsValidValue(List<GridCell> puzzle, GridCell gridCell)
         {
             var max = (int)Math.Sqrt(puzzle.Count);
 
-            if (gridCell.Value == Queen && QueenAlreadyOnRow(puzzle, gridCell))
+            if (gridCell.Value == Queen && 
+                !QueenAlreadyOnRow(puzzle, gridCell) &&
+                !QueenAlreadyInColumn(puzzle, gridCell) &&
+                !QueenAlreadyOnDiagonal(puzzle, gridCell, max))
             {
-                return false;
+                return true;
+            }
+            
+
+            if (gridCell.Value == NotQueen && 
+                !TooManyNotQueensOnRow(puzzle, gridCell, max) &&
+                !TooManyNotQueensInColumn(puzzle, gridCell, max) &&
+                !TooManyNotQueensOnDiagonal(puzzle, gridCell, max))
+            {
+                return true;
             }
 
-            if (gridCell.Value == NotQueen && TooManyNotQueensOnRow(puzzle, gridCell, max))
-            {
-                return false;
-            }
-
-            if (gridCell.Value == Queen && QueenAlreadyInColumn(puzzle, gridCell))
-            {
-                return false;
-            }
-
-            if (gridCell.Value == NotQueen && TooManyNotQueensInColumn(puzzle, gridCell, max))
-            {
-                return false;
-            }
-
-            if (gridCell.Value == Queen && QueenAlreadyOnDiagonal(puzzle, gridCell, max))
-            {
-                return false;
-            }
-
-            if (gridCell.Value == NotQueen && TooManyNonQueensOnDiagonal(puzzle, gridCell, max))
-            {
-                return false;
-            }
-
-            return true;
+            return false;
         }
 
         private static bool QueenAlreadyOnRow(IEnumerable<GridCell> puzzle, GridCell gridCell)
@@ -186,7 +175,7 @@ namespace EightQueens
             return false;
         }
 
-        private static bool TooManyNonQueensOnDiagonal(List<GridCell> puzzle, GridCell gridCell, int max)
+        private static bool TooManyNotQueensOnDiagonal(List<GridCell> puzzle, GridCell gridCell, int max)
         {
             var count = 0;
 
